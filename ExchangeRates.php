@@ -31,17 +31,19 @@ class ExchangeRates
    * @var float|int Результат конвертация валют
    */
   public float $result = 0;
+  private array $arr;
 
 
   /**
    * @param array $arr - Входной массив
    */
-  public function __construct($arr)
+  public function __construct(array $arr)
   {
     try {
 
 
-      $this->pair = $this->validateInput($arr);
+      $this->arr = $arr;
+      $this->pair = $this->validateInput($this->arr);
       $this->listOfExchange = $this->getListOfExchange();
       $this->pairRates = $this->getPairRates();
       $this->rates = $this->pairRates[$this->pair];
@@ -57,9 +59,10 @@ class ExchangeRates
   /**
    * Получения списка доступных валют для конвертации.
    *
+   * @return object
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function getListOfExchange()
+  public function getListOfExchange():object
   {
     try {
       $client = new GuzzleHttp\Client();
@@ -81,7 +84,7 @@ class ExchangeRates
    * @return mixed
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function getPairRates()
+  public function getPairRates():mixed
   {
     try {
 
@@ -108,9 +111,10 @@ class ExchangeRates
    * Проверяем подключение к серверу API.
    *
    * @param $client
+   * @return bool
    * @throws Exception
    */
-  protected function checkConnect($client)
+  protected function checkConnect($client): bool
   {
     if ($client->getStatusCode() !== 200) {
       throw new Exception('Сервер не ответил. Код: ' . $client->getStatusCode());
@@ -122,6 +126,7 @@ class ExchangeRates
         ' и сказал: ' . $check->message
       );
     }
+    return true;
   }
 
   /**
@@ -154,7 +159,7 @@ class ExchangeRates
    * @param $amount
    * @return float|int
    */
-  protected function makeChange($rate, $amount)
+  protected function makeChange($rate, $amount):float|int
   {
     $this->result = $rate * $amount;
     return $this->result;
